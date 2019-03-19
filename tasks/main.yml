@@ -1,0 +1,54 @@
+---
+- name: Set the location of cloud image
+  set_fact:
+    IMAGE: "/var/lib/libvirt/images/controller.qcow2"
+
+- name: Copy controller qcow2 file
+  command: cp /root/controller.qcow2 /var/lib/libvirt/images/
+
+- name: Creates directory
+  file:
+    path: /root/{{ kvm_vm_hostname }}
+    state: directory
+
+- name: Create the meta-data config file for vm
+  template:
+    src: avi_meta-data-controller.j2
+    dest: /root/{{ kvm_vm_hostname }}/avi_meta-data
+
+- name: Create the user-data config file for vm
+  template:
+    src: user-data.j2
+    dest: /root/{{ kvm_vm_hostname }}/user-data
+
+- name: Set the location of user data
+  set_fact:
+    USER_DATA: /root/{{ kvm_vm_hostname }}/user-data
+
+- name: Set the location of META data
+  set_fact:
+    META_DATA: /root/{{ kvm_vm_hostname }}/avi_meta-data
+
+- name: Create CD-ROM ISO with cloud-init config
+  command: >
+    genisoimage -output {{ CI_ISO }} -volid cidata -joliet -r {{ USER_DATA }} {{ META_DATA }}
+
+- name: Installing the domain and adjusting the configuration...
+  command: >
+    virt-install --import --name {{ kvm_vm_hostname }} --ram {{ kvm_vm_ram }} --vcpus {{ kvm_vm_vcpus }} --disk {{ IMAGE }},format=qcow2,bus=virtio --disk {{ CI_ISO }},device=cdrom --network type=direct,source={{ host_mgmt_intf }},source_mode=bridge,model=virtio --os-type=linux --os-variant=ubuntu16.04 --noautoconsole --check path_in_use=off
+  register: vm_xml_content
+
+- name: Define vm
+  become: yes
+  virt:
+    name: "{{ kvm_vm_hostname }}"
+    command: define
+    xml: "{{ vm_xml_content.stdout }}"
+    uri: qemu:///system
+
+- name: Eject cdrom
+  command: >
+    virsh change-media {{ kvm_vm_hostname }} hda --eject --config
+
+- name: Remove CI_ISO
+  command: "rm {{ CI_ISO }}"
