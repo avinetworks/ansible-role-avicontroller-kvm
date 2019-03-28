@@ -1,0 +1,58 @@
+---
+- name: "Avi Controller | KVM | Set the location of cloud image"
+  set_fact:
+    IMAGE: "/var/lib/libvirt/images/controller.qcow2"
+
+- name: "Avi Controller | KVM | Copy controller qcow2 file to /var/lib/libvirt/images/"
+  copy:
+    src: /root/controller.qcow2
+    dest: /var/lib/libvirt/images/controller.qcow2
+    remote_src: yes
+    owner: root
+
+- name: "Avi Controller | KVM | Create directory {{ kvm_vm_hostname }} on KVM host"
+  file:
+    path: /root/{{ kvm_vm_hostname }}
+    state: directory
+
+- name: "Avi Controller | KVM | Create the meta-data config file for VM on KVM host"
+  template:
+    src: avi_meta-data-controller.j2
+    dest: /root/{{ kvm_vm_hostname }}/avi_meta-data
+
+- name: "Avi Controller | KVM | Create the user-data config file for VM on KVM host"
+  template:
+    src: user-data.j2
+    dest: /root/{{ kvm_vm_hostname }}/user-data
+
+- name: "Avi Controller | KVM | Set the location of USER DATA"
+  set_fact:
+    AVI_USER_DATA: /root/{{ kvm_vm_hostname }}/user-data
+
+- name: "Avi Controller | KVM | Set the location of META DATA"
+  set_fact:
+    AVI_META_DATA: /root/{{ kvm_vm_hostname }}/avi_meta-data
+
+- name: "Avi Controller | KVM | Create CD-ROM ISO with cloud-init config"
+  command: >
+    genisoimage -output {{ CI_ISO }} -volid cidata -joliet -r {{ AVI_USER_DATA }} {{ AVI_META_DATA }}
+
+- name: "Avi Controller | KVM | Installing the domain and adjusting the configuration"
+  command: >
+    virt-install --import --name {{ kvm_vm_hostname }} --ram {{ kvm_vm_ram }} --vcpus {{ kvm_vm_vcpus }} --disk {{ IMAGE }},format=qcow2,bus=virtio --disk {{ CI_ISO }},device=cdrom --network type=direct,source={{ host_mgmt_intf }},source_mode=bridge,model=virtio --os-type=linux --os-variant=ubuntu16.04 --noautoconsole --check path_in_use=off
+  register: vm_xml_content
+
+- name: "Avi Controller | KVM | Define VM"
+  become: yes
+  virt:
+    name: "{{ kvm_vm_hostname }}"
+    command: define
+    xml: "{{ vm_xml_content.stdout }}"
+    uri: qemu:///system
+
+- name: "Avi Controller | KVM | Eject CDROM"
+  command: >
+    virsh change-media {{ kvm_vm_hostname }} hda --eject --config
+
+- name: "Avi Controller | KVM | Remove CI_ISO"
+  command: "rm -rf {{ CI_ISO }} /root/{{ kvm_vm_hostname }}"
