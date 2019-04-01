@@ -1,19 +1,17 @@
 ---
 # defaults file for playbooks/roles/kvm-vm
+kvm_host_ip: ~
 kvm_vm_hostname: ~
-kvm_vm_public_ip: ~
+kvm_host_username: ~
+kvm_host_password: ~
 kvm_vm_vcpus: "4"
 kvm_vm_ram: "8192"
 kvm_vm_os_disk_size: "40"
-
+state: "present"
 vm_ctrl_ip: ~
 ctrl_mgmt_ip: ~
 ctrl_mgmt_mask: ~
 ctrl_default_gw: ~
-host_mgmt_intf: eno1.100
-
-kvm_host_ip: ~
-kvm_host_username: ~
-kvm_host_password: ~
+host_mgmt_intf: ~
 
 CI_ISO: /var/lib/libvirt/images/{{ kvm_vm_hostname }}-cidata.iso
