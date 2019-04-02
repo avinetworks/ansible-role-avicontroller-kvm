@@ -14,7 +14,7 @@
     - ctrl_default_gw
     - kvm_host_mgmt_intf
 
-- name: "Avi Controller | KVM | Avi Controller | Check pinning support on host"
+- name: "Avi Controller | KVM | Check pinning support on host"
   fail:
     msg: "Pinning is not supportable for the os version {{ hostvars[inventory_hostname].ansible_distribution_version }}"
   when: 'hostvars[inventory_hostname].ansible_distribution_version | float == 16.04 and kvm_pinning'
