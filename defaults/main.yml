@@ -5,8 +5,8 @@ kvm_vm_hostname: ~
 kvm_host_username: ~
 kvm_host_password: ~
 #kvm_vm_base_img: ~
-kvm_vm_vcpus: "4"
-kvm_vm_ram: "8192"
+kvm_vm_vcpus: "8"
+kvm_vm_ram: "16384"
 kvm_vm_os_disk_size: "40"
 kvm_pinning: true
 ctrl_mgmt_ip: ~

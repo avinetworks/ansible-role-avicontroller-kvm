@@ -14,13 +14,13 @@ Role Variables
 |----------|----------|---------|----------|
 |kvm_vm_hostname|Yes||Name for VM|
 |kvm_vm_base_img|No|It will take from hosts root dir|controller.qcow2 file|
-|kvm_vm_vcpus|No|4|How many cpus the service engine will use.|
-|kvm_vm_ram|No|8912|How much memory the service engine will use.|
-|kvm_vm_os_disk_size|Yes|40|How much disk size the controller will use.|
+|kvm_vm_vcpus|No|8|How many cpus the controller will use.|
+|kvm_vm_ram|No|16384MB|How much memory the controller will use.|
+|kvm_vm_os_disk_size|Yes|40|How much disk size the controller will use. If you give disk size then default pool should be present on ypur KVM host|
 |host_mgmt_intf|Yes||host management interface name|
-|ctrl_mgmt_ip|Yes||Management Ip for the service engine|
-|ctrl_mgmt_mask|Yes||Subnet mast for the service engine|
-|ctrl_default_gw|Yes||Default gateway for service engine|
+|ctrl_mgmt_ip|Yes||Management Ip for the controller|
+|ctrl_mgmt_mask|Yes||Subnet mast for the controller|
+|ctrl_default_gw|Yes||Default gateway for controller|
 |state|Yes|present|If present then it will create controller and for absent it will destroy controller.|
 |kvm_pinning|Yes||If you want to enable pinning CPU for the VM|
 |kvm_host_ip|Yes||KVM host IP|
