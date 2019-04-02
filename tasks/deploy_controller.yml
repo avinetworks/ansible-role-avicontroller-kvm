@@ -14,6 +14,11 @@
     - ctrl_default_gw
     - kvm_host_mgmt_intf
 
+- name: "Avi Controller | KVM | Check pinning support on host"
+  fail:
+    msg: "Pinning is not supportable for the os version {{ hostvars[inventory_hostname].ansible_distribution_version }}"
+  when: 'hostvars[inventory_hostname].ansible_distribution_version | float == 16.04 and kvm_pinning'
+
 - name: "Avi Controller | KVM | Set the location of cloud image"
   set_fact:
     IMAGE: "/var/lib/libvirt/images/controller.qcow2"
@@ -61,26 +66,15 @@
   command: >
     genisoimage -output {{ CI_ISO }} -volid cidata -joliet -r {{ AVI_USER_DATA }} {{ AVI_META_DATA }}
 
-- name: Get Os Version
-  shell: hostnamectl | grep 'Operating System'
-  register: os_version
-
-- name: "Avi Controller | KVM | Deploy Controller | Run if os_version is 17.04 OR OS is CentOS AND pinning is Yes"
+- name: "Avi Controller | KVM | Deploy Controller | Run if os_version is greater than 17.04 OR OS is CentOS AND pinning is True"
   command: >
-    virt-install --import --name {{ kvm_vm_hostname }} --ram {{ kvm_vm_ram }} --vcpus {{ kvm_vm_vcpus }} --disk {{ IMAGE }},format=qcow2,bus=virtio --disk {{ CI_ISO }},device=cdrom --network type=direct,source={{ kvm_host_mgmt_intf }},source_mode=bridge,model=virtio --os-type=linux --os-variant=ubuntu16.04 --cpuset=auto --noautoconsole
+    virt-install --import --name {{ kvm_vm_hostname }} --ram {{ kvm_vm_ram }} --vcpus {{ kvm_vm_vcpus }} --disk {{ IMAGE }},format=qcow2,bus=virtio,size={{ kvm_vm_os_disk_size }} --disk {{ CI_ISO }},device=cdrom --network type=direct,source={{ kvm_host_mgmt_intf }},source_mode=bridge,model=virtio --os-type=linux --os-variant=ubuntu16.04 --cpuset=auto --noautoconsole
   register: vm_xml_content
-  when: '"17.04" in os_version.stdout or "CentOS" in os_version.stdout and kvm_pinning'
-
-- name: "Avi Controller | KVM | Deploy Controller | Run if os_version is 16.04 AND pinning is Yes"
-  command: >
-    virt-install --import --name {{ kvm_vm_hostname }} --ram {{ kvm_vm_ram }} --vcpus {{ kvm_vm_vcpus }} --disk {{ IMAGE }},format=qcow2,bus=virtio --disk {{ CI_ISO }},device=cdrom --network type=direct,source={{ kvm_host_mgmt_intf }},source_mode=bridge,model=virtio --os-type=linux --os-variant=ubuntu16.04 --cpuset=auto --disk size={{ kvm_vm_os_disk_size }} --noautoconsole
-  register: vm_xml_content
-  when: '"16.04" in os_version.stdout and kvm_pinning'
+  when: 'hostvars[inventory_hostname].ansible_distribution_version | float >= 17.04 or hostvars[inventory_hostname].ansible_distribution == "CentOS" and kvm_pinning'
 
 - name: "Avi Controller | KVM | Deploy Controller | Run if pinning is False"
   command: >
-    virt-install --import --name {{ kvm_vm_hostname }} --ram {{ kvm_vm_ram }} --vcpus {{ kvm_vm_vcpus }} --disk {{ IMAGE }},format=qcow2,bus=virtio --disk {{ CI_ISO }},device=cdrom --network type=direct,source={{ kvm_host_mgmt_intf }},source_mode=bridge,model=virtio --os-type=linux --os-variant=ubuntu16.04 --disk size={{ kvm_vm_os_disk_size }} --noautoconsole
-  register: vm_xml_content
+    virt-install --import --name {{ kvm_vm_hostname }} --ram {{ kvm_vm_ram }} --vcpus {{ kvm_vm_vcpus }} --disk {{ IMAGE }},format=qcow2,bus=virtio,size={{ kvm_vm_os_disk_size }} --disk {{ CI_ISO }},device=cdrom --network type=direct,source={{ kvm_host_mgmt_intf }},source_mode=bridge,model=virtio --os-type=linux --os-variant=ubuntu16.04 --noautoconsole
   when: not kvm_pinning
 
 - name: "Avi Controller | KVM | Eject CDROM"
