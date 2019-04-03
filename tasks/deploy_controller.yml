@@ -94,3 +94,5 @@
   register: ctrl_status
   until: ctrl_status.status == 200
   ignore_errors: yes
+  delegate_to: localhost
+  
