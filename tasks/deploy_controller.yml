@@ -83,3 +83,14 @@
 
 - name: "Avi Controller | KVM | Remove CI_ISO and Host files."
   command: "rm -rf {{ CI_ISO }} /root/{{ kvm_vm_hostname }}"
+
+# Validate if controller is up and running
+- name: "Avi Controller | KVM | Validate controller is up"
+  uri:
+    url: 'https://{{ ctrl_mgmt_ip }}/#!/login'
+    validate_certs: no
+  retries: 120
+  delay: 30
+  register: ctrl_status
+  until: ctrl_status.status == 200
+  ignore_errors: yes
