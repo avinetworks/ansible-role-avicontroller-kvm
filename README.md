@@ -16,7 +16,7 @@ Role Variables
 |kvm_vm_base_img|No|It will take from hosts root dir|controller.qcow2 file|
 |kvm_vm_vcpus|No|8|How many cpus the controller will use.|
 |kvm_vm_ram|No|16384MB|How much memory the controller will use.|
-|kvm_vm_os_disk_size|Yes|40|How much disk size the controller will use. If you give disk size then default pool should be present on ypur KVM host|
+|kvm_vm_os_disk_size|Yes|40|How much disk size the controller will use.|
 |host_mgmt_intf|Yes||host management interface name|
 |ctrl_mgmt_ip|Yes||Management Ip for the controller|
 |ctrl_mgmt_mask|Yes||Subnet mast for the controller|
@@ -33,8 +33,6 @@ Role Variables
 - hosts: kvm
   vars:
     kvm_vm_hostname: "ctrl1"
-    kvm_vm_vcpus: "4"
-    kvm_vm_ram: "16384"
     host_mgmt_intf: eno1.100
     ctrl_mgmt_ip: 10.130.5.12
     ctrl_mgmt_mask: 255.255.255.0
