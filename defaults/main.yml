@@ -13,6 +13,6 @@ ctrl_mgmt_ip: ~
 ctrl_mgmt_mask: ~
 ctrl_default_gw: ~
 
-state: "present"
+state: "create"
 kvm_host_mgmt_intf: ~
 CI_ISO: /var/lib/libvirt/images/{{ kvm_vm_hostname }}-cidata.iso

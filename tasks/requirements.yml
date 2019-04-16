@@ -1,0 +1,45 @@
+---
+- name: "Avi Controller | KVM | Requirements | Check variables"
+  assert:
+    that:
+      - "{{ item }} != None"
+    msg: "{{ item }} must be provided"
+  with_items:
+    - kvm_host_ip
+    - kvm_vm_base_img
+    - kvm_vm_hostname
+    - kvm_host_username
+    - kvm_host_password
+    - ctrl_mgmt_ip
+    - ctrl_mgmt_mask
+    - ctrl_default_gw
+    - kvm_host_mgmt_intf
+
+- name: "Avi Controller | KVM | Check VM {{ kvm_vm_hostname }} exist or not"
+  command: virsh dominfo {{ kvm_vm_hostname }}
+  register: domain_information
+  ignore_errors: yes
+
+- name: "Avi Controller | KVM | Get user input to deal with the existing VM"
+  pause:
+   prompt: "{{ kvm_vm_hostname }} already exists. Do you want to overwrite (y/n)?"
+   echo: yes
+  register: prompt_result
+  when: 'domain_information.stdout != ""'
+
+- name: "Avi Controller | KVM | Destroying the existing VM"
+  command: virsh destroy {{ kvm_vm_hostname }}
+  when: 'domain_information.stdout != "" and prompt_result.user_input | lower == "y"'
+
+- name: "Avi Controller | KVM | Undefining the existing VM"
+  command: virsh undefine {{ kvm_vm_hostname }}
+  when: 'domain_information.stdout != "" and prompt_result.user_input | lower == "y"'
+
+- name: "Avi Controller | KVM | Exit the execution"
+  fail:
+    msg: "Not overwriting {{ kvm_vm_hostname }}. Exiting..."
+  when: 'domain_information.stdout != "" and prompt_result.user_input | lower == "n"'
+
+- name: "Avi Controller | KVM | Removing the existing VM data and qcow2"
+  command: "rm -rf /root/{{ kvm_vm_hostname }} /var/lib/libvirt/images/{{ kvm_vm_hostname }}.qcow2"
+  when: 'domain_information.stdout != "" and prompt_result.user_input | lower == "y"'
