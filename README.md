@@ -23,6 +23,7 @@ Role Variables
 |ctrl_default_gw|Yes||Default gateway for controller|
 |state|No|create|If create then it will create controller and for delete it will delete the controller.|
 |kvm_pinning|Yes||If you want to enable pinning CPU for the VM|
+|kvm_force_mode|No|true|If VM with the given name exist then it will overwrite to that VM and for false it will stop the execution.|
 
 ### Standard Example
 <b>Kvm host (inventory) file </b>

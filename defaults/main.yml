@@ -14,5 +14,6 @@ ctrl_mgmt_mask: ~
 ctrl_default_gw: ~
 
 state: "create"
+kvm_force_mode: true
 kvm_host_mgmt_intf: ~
 CI_ISO: /var/lib/libvirt/images/{{ kvm_vm_hostname }}-cidata.iso
