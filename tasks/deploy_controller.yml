@@ -1,18 +1,7 @@
 ---
-- name: Avi Controller | KVM | Requirements | Check variables
-  assert:
-    that:
-      - "{{ item }} != None"
-    msg: "{{ item }} must be provided"
-  with_items:
-    - kvm_host_ip
-    - kvm_vm_hostname
-    - kvm_host_username
-    - kvm_host_password
-    - ctrl_mgmt_ip
-    - ctrl_mgmt_mask
-    - ctrl_default_gw
-    - kvm_host_mgmt_intf
+
+- name: "Avi Controller | KVM | Validate Requirements"
+  include: requirements.yml
 
 - name: "Avi Controller | KVM | Check pinning support on host"
   fail:
@@ -21,21 +10,21 @@
 
 - name: "Avi Controller | KVM | Set the location of cloud image"
   set_fact:
-    IMAGE: "/var/lib/libvirt/images/controller.qcow2"
+    IMAGE: "/var/lib/libvirt/images/{{ kvm_vm_hostname }}.qcow2"
 
-- name: "Avi Controller | KVM | Copy controller.qcow2 file into /var/lib/libvirt/images/ from Kvm Host"
-  copy:
-    src: /root/controller.qcow2
-    dest: /var/lib/libvirt/images/controller.qcow2
-    remote_src: yes
-    owner: root
-  when: kvm_vm_base_img is undefined
-
-- name: "Avi Controller | KVM | Copy controller.qcow2 file into /var/lib/libvirt/images/ from local"
+- name: "Avi Controller | KVM | Copy controller.qcow2 file to /root from local"
   copy:
     src: "{{ kvm_vm_base_img }}"
+    dest: "/root"
+    remote_src: "no"
+    owner: "root"
+  when: kvm_vm_base_img is defined
+
+- name: "Avi Controller | KVM | Copy controller.qcow2 file into /var/lib/libvirt/images/ from KVM"
+  copy:
+    src: /root/controller.qcow2
     dest: "{{ IMAGE }}"
-    remote_src: no
+    remote_src: yes
     owner: root
   when: kvm_vm_base_img is defined
 
