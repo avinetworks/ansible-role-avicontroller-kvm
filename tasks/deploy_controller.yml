@@ -12,20 +12,12 @@
   set_fact:
     IMAGE: "/var/lib/libvirt/images/{{ kvm_vm_hostname }}.qcow2"
 
-- name: "Avi Controller | KVM | Copy controller.qcow2 file to /root from local"
+- name: "Avi Controller | KVM | Copy {{ kvm_vm_base_img }} file into /var/lib/libvirt/images/ on KVM host"
   copy:
     src: "{{ kvm_vm_base_img }}"
-    dest: "/root"
+    dest: "{{ IMAGE }}"
     remote_src: "no"
     owner: "root"
-  when: kvm_vm_base_img is defined
-
-- name: "Avi Controller | KVM | Copy controller.qcow2 file into /var/lib/libvirt/images/ from KVM"
-  copy:
-    src: /root/controller.qcow2
-    dest: "{{ IMAGE }}"
-    remote_src: yes
-    owner: root
   when: kvm_vm_base_img is defined
 
 - name: "Avi Controller | KVM | Create directory {{ kvm_vm_hostname }} on KVM host"
