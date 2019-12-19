@@ -16,6 +16,9 @@ Role Variables
 |kvm_vm_base_img|Yes||controller.qcow2 file|
 |kvm_vm_vcpus|No|8|How many cpus the controller will use.|
 |kvm_vm_ram|No|24576 MB|How much memory the controller will use.|
+|kvm_network_type|No|direct|Which network type you have to use.|
+|kvm_network_source_mode|No|bridge|Which network bridge you have to use.|
+|kvm_network_model|No|virtio|Which network model you have to use.|
 |kvm_vm_os_disk_size|No|100|How much disk size the controller will use.|
 |kvm_host_mgmt_intf|Yes||host management interface name|
 |ctrl_mgmt_ip|Yes||Management Ip for the controller|
