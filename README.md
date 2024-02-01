@@ -1,4 +1,6 @@
-# ansible-role-avicontroller-kvm
+**⛔️ DEPRECATED: This repo is no longer supported, please consider using** https://github.com/vmware/ansible-collection-alb **instead since**
+ **this role is migrated to ansible collections.**
+ 
 Ansible Role to setup Avi Controller on KVM
 
 Requirements
